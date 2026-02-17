@@ -1,9 +1,16 @@
 package com.microsoft.qrcode.compose
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
+import androidx.compose.material.icons.filled.ConfirmationNumber
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 
@@ -44,7 +51,7 @@ fun BottomNavigationBar(navController: NavController) {
                     navController.navigate("trip_history")
                 }
             },
-            icon = { Icon(Icons.Default.ReceiptLong, contentDescription = "History") },
+            icon = { Icon(Icons.AutoMirrored.Filled.ReceiptLong, contentDescription = "History") },
             label = { Text("History") }
         )
 

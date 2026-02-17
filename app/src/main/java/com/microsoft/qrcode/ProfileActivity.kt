@@ -11,7 +11,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,10 +29,9 @@ import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.Help
-import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.navigation.NavController
@@ -86,7 +86,7 @@ fun ProfileScreen(
                 navController.popBackStack()
             }) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back"
                 )
             }
@@ -168,7 +168,7 @@ fun ProfileScreen(
         ProfileOptionItem(Icons.Default.BarChart, "Trip Statistics")
         ProfileOptionItem(Icons.Default.Notifications, "Notification Settings")
         ProfileOptionItem(Icons.Default.Security, "Security & Password")
-        ProfileOptionItem(Icons.Default.Help, "Support")
+        ProfileOptionItem(Icons.AutoMirrored.Filled.Help, "Support")
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -183,7 +183,7 @@ fun ProfileScreen(
                 contentColor = Color.Red
             )
         ) {
-            Icon(Icons.Default.Logout, contentDescription = "Logout")
+            Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout")
             Spacer(modifier = Modifier.width(8.dp))
             Text("Logout")
         }
