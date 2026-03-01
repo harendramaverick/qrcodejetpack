@@ -31,7 +31,7 @@ fun DashboardScreen(navController: NavController) {
             TopAppBar(
                 title = { Text("Dashboard") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigate("profile") }) {
+                    IconButton(onClick = { /* notifications */ /*navController.navigate("profile")*/ }) {
                         Icon(Icons.Default.AccountCircle, contentDescription = "Profile")
                     }
                 },
@@ -55,6 +55,8 @@ fun DashboardScreen(navController: NavController) {
                 .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
+            BalanceCard()
+
             TravelRouteCard()
 
             RecentDestinations()
