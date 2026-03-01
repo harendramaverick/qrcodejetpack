@@ -1,8 +1,5 @@
 package com.microsoft.qrcode
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -22,27 +19,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 
-class EditProfileActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            MaterialTheme {
-                EditProfileScreen(
-                    onBackClick = { finish() },
-                    onCancelClick = { finish() },
-                    onSaveClick = { finish() }
-                )
-            }
-        }
-    }
-}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileScreen(
-    onBackClick: () -> Unit,
-    onCancelClick: () -> Unit,
-    onSaveClick: () -> Unit
+    navController: NavController,
 ) {
     var fullName by remember { mutableStateOf("Alex Johnson") }
     var email by remember { mutableStateOf("alex.johnson@example.com") }
@@ -59,7 +42,7 @@ fun EditProfileScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
+                    IconButton(onClick = {  }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back"
@@ -67,7 +50,7 @@ fun EditProfileScreen(
                     }
                 },
                 actions = {
-                    TextButton(onClick = onCancelClick) {
+                    TextButton(onClick = {  }) {
                         Text(
                             text = "Cancel",
                             color = Color(0xFF1E6FFF)
@@ -151,7 +134,7 @@ fun EditProfileScreen(
 
             /** Save Button */
             Button(
-                onClick = onSaveClick,
+                onClick = {navController.navigate("login")},
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),

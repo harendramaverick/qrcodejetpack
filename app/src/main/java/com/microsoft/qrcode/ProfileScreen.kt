@@ -41,9 +41,8 @@ import com.microsoft.qrcode.ui.theme.QrcodeTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreenMain(
-    navController: NavController,
-    onLogoutClick: () -> Unit
+fun ProfileScreen(
+    navController: NavController
 ) {
     Scaffold(
         topBar = {
@@ -52,25 +51,23 @@ fun ProfileScreenMain(
             BottomNavigationBar(navController)
         }
     ) { padding ->
-        ProfileScreen(
+        ProfileScreenSub(
             Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .background(Color.White)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp),
-            navController = navController,
-            onLogoutClick = onLogoutClick
+            navController = navController
         )
     }
 }
 
 
 @Composable
-fun ProfileScreen(
+fun ProfileScreenSub(
     modifier: Modifier,
-    navController: NavController,
-    onLogoutClick: () -> Unit
+    navController: NavController
 ) {
     Column(
         modifier = modifier
@@ -174,7 +171,7 @@ fun ProfileScreen(
 
         // Logout
         OutlinedButton(
-            onClick = onLogoutClick,
+            onClick = { navController.navigate("login") { popUpTo("login") { inclusive = true } }} ,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp),
@@ -247,9 +244,8 @@ fun ProfileOptionItem(
 @Composable
 fun ProfileScreenPreview() {
     QrcodeTheme {
-        ProfileScreenMain(
-            navController = rememberNavController(),
-            onLogoutClick = { }
+        ProfileScreen(
+            navController = rememberNavController()
         )
     }
 }

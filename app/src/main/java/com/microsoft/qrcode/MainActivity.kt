@@ -27,18 +27,21 @@ class MainActivity : ComponentActivity() {
 fun AppNavigation() {
     val navController = rememberNavController()
     NavHost(
-        navController = navController,
-        startDestination = "login",
-        enterTransition = { fadeIn(animationSpec = tween(1500)) },
-        exitTransition = { fadeOut(animationSpec = tween(1500)) },
+        navController      = navController,
+        startDestination   = "login",
+        enterTransition    = { fadeIn(animationSpec = tween(1500)) },
+        exitTransition     = { fadeOut(animationSpec = tween(1500)) },
         popEnterTransition = { fadeIn(animationSpec = tween(1500)) },
-        popExitTransition = { fadeOut(animationSpec = tween(1500)) }
+        popExitTransition  = { fadeOut(animationSpec = tween(1500)) }
     ) {
         composable("login") { LoginScreen(navController) }
+        composable("registration") { RegistrationScreen(navController) }
+        composable("changepassword") { ChangePasswordScreen(navController) }
+        composable("editprofile") { EditProfileScreen(navController) }
         composable("registration") { RegistrationScreen(navController) }
         composable("dashboard") { DashboardScreen(navController) }
         composable("trip_history") { TripHistoryScreen(navController) }
         composable("active_tickets") { ActiveTicketScreen(navController) }
-        composable("profile") { ProfileScreenMain(navController, onLogoutClick = { navController.navigate("login") { popUpTo(0) } }) }
+        composable("profile") { ProfileScreen(navController) }
     }
 }

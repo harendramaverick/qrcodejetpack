@@ -1,8 +1,5 @@
 package com.microsoft.qrcode
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -20,25 +17,13 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.microsoft.qrcode.ui.theme.QrcodeTheme
-
-class ChangePasswordActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            QrcodeTheme() {
-                ChangePasswordScreen(
-                    onBack = { finish() }
-                )
-            }
-        }
-    }
-}
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChangePasswordScreen(
-    onBack: () -> Unit
+    navController: NavController
 ) {
     var currentPassword by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
@@ -57,7 +42,7 @@ fun ChangePasswordScreen(
             TopAppBar(
                 title = { Text("Change Password") },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = {  navController.navigate("login") { popUpTo("login") { inclusive = true } }}) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 }
@@ -172,7 +157,7 @@ fun ChangePasswordScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { /* update password */ },
+                onClick = { navController.navigate("login") { popUpTo("login") { inclusive = true } } },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -215,7 +200,5 @@ fun PasswordRule(text: String, satisfied: Boolean) {
 @Preview(showBackground = true)
 @Composable
 fun ChangePasswordScreenPreview() {
-    ChangePasswordScreen (
-        onBack = {  }
-    )
+    ChangePasswordScreen (navController = rememberNavController())
 }

@@ -128,7 +128,7 @@ fun RegistrationScreen(navController: NavController) {
             )
 
             Button(
-                onClick = { /* register logic */ },
+                onClick = { navController.navigate("login") { popUpTo("login") { inclusive = true } } },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
