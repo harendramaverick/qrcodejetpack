@@ -29,10 +29,10 @@ fun AppNavigation() {
     NavHost(
         navController      = navController,
         startDestination   = "login",
-        enterTransition    = { fadeIn(animationSpec = tween(1500)) },
-        exitTransition     = { fadeOut(animationSpec = tween(1500)) },
-        popEnterTransition = { fadeIn(animationSpec = tween(1500)) },
-        popExitTransition  = { fadeOut(animationSpec = tween(1500)) }
+        enterTransition    = { fadeIn(animationSpec     = tween(1500)) },
+        exitTransition     = { fadeOut(animationSpec    = tween(1500)) },
+        popEnterTransition = { fadeIn(animationSpec     = tween(1500)) },
+        popExitTransition  = { fadeOut(animationSpec    = tween(1500)) }
     ) {
         composable("login") { LoginScreen(navController) }
         composable("registration") { RegistrationScreen(navController) }
@@ -40,8 +40,8 @@ fun AppNavigation() {
         composable("editprofile") { EditProfileScreen(navController) }
         composable("registration") { RegistrationScreen(navController) }
         composable("dashboard") { DashboardScreen(navController) }
-        composable("trip_history") { TripHistoryScreen(navController) }
-        composable("active_tickets") { ActiveTicketScreen(navController) }
+        composable("triphistory") { TripHistoryScreen(navController) }
+        composable("activetickets") { ActiveTicketScreen(navController) }
         composable("profile") { ProfileScreen(navController) }
     }
 }

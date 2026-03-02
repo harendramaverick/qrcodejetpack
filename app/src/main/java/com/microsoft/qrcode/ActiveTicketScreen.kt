@@ -56,7 +56,7 @@ fun ActiveTicketScreen(navController: NavController) {
             item {
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
-                    onClick = { navController.navigate("trip_history") },
+                    onClick = { navController.navigate("triphistory") },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("View Full History")

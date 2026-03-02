@@ -37,7 +37,7 @@ fun BottomNavigationBar(navController: NavController) {
             selected = currentRoute == "active_tickets",
             onClick = {
                 if (currentRoute != "active_tickets") {
-                    navController.navigate("active_tickets")
+                    navController.navigate("activetickets")
                 }
             },
             icon = { Icon(Icons.Default.ConfirmationNumber, contentDescription = "Tickets") },
@@ -48,7 +48,7 @@ fun BottomNavigationBar(navController: NavController) {
             selected = currentRoute == "trip_history",
             onClick = {
                 if (currentRoute != "trip_history") {
-                    navController.navigate("trip_history")
+                    navController.navigate("triphistory")
                 }
             },
             icon = { Icon(Icons.AutoMirrored.Filled.ReceiptLong, contentDescription = "History") },
