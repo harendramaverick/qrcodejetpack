@@ -18,19 +18,71 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.microsoft.qrcode.ui.theme.QrcodeTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegistrationScreen(navController: NavController) {
+fun RegistrationScreen(navController: NavController, viewModel: AuthViewModel = viewModel()) {
 
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var showSuccessDialog by remember { mutableStateOf(false) }
+
+    val registerUiState = viewModel.registerUiState
+
+    // Handle registration success
+    LaunchedEffect(registerUiState) {
+        if (registerUiState is RegisterUiState.Success) {
+            showSuccessDialog = true
+        }
+    }
+
+    if (showSuccessDialog) {
+        Dialog(onDismissRequest = { showSuccessDialog = false }) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp),
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Registration Successful! 🎉",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Your account has been created. Please login to continue.",
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Button(
+                        onClick = {
+                            showSuccessDialog = false
+                            navController.navigate("login") {
+                                popUpTo("registration") { inclusive = true }
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Go to Login")
+                    }
+                }
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -127,13 +179,34 @@ fun RegistrationScreen(navController: NavController) {
                 modifier = Modifier.fillMaxWidth()
             )
 
+            if (registerUiState is RegisterUiState.Error) {
+                Text(
+                    text = registerUiState.message,
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 14.sp,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+            }
+
             Button(
-                onClick = { navController.navigate("login") { popUpTo("login") { inclusive = true } } },
+                onClick = {
+                    viewModel.register(fullName, email, password)
+                },
+                enabled = registerUiState !is RegisterUiState.Loading,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
             ) {
-                Text("Register", fontSize = 18.sp)
+                if (registerUiState is RegisterUiState.Loading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text("Register", fontSize = 18.sp)
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -161,6 +234,7 @@ fun RegistrationScreen(navController: NavController) {
 @Composable
 fun RegistrationScreenPreview() {
     QrcodeTheme {
+        // Mock or default ViewModel is fine for preview if not doing logic
         RegistrationScreen(navController = rememberNavController())
     }
 }

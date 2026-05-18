@@ -30,6 +30,19 @@ data class LoginResponse(
     val expiration: String? = null
 )
 
+@Serializable
+data class RegisterRequest(
+    val username: String,
+    val email: String,
+    val password: String
+)
+
+@Serializable
+data class RegisterResponse(
+    val status: String? = null,
+    val message: String? = null
+)
+
 // --- UI State ---
 
 sealed class LoginUiState {
@@ -37,6 +50,13 @@ sealed class LoginUiState {
     object Loading : LoginUiState()
     data class Success(val data: LoginResponse) : LoginUiState()
     data class Error(val message: String) : LoginUiState()
+}
+
+sealed class RegisterUiState {
+    object Idle : RegisterUiState()
+    object Loading : RegisterUiState()
+    data class Success(val message: String) : RegisterUiState()
+    data class Error(val message: String) : RegisterUiState()
 }
 
 // --- ViewModel ---
@@ -54,6 +74,9 @@ class AuthViewModel : ViewModel() {
     }
 
     var loginUiState by mutableStateOf<LoginUiState>(LoginUiState.Idle)
+        private set
+
+    var registerUiState by mutableStateOf<RegisterUiState>(RegisterUiState.Idle)
         private set
 
     /**
@@ -92,6 +115,41 @@ class AuthViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 loginUiState = LoginUiState.Error(e.message ?: "An unexpected error occurred")
+            }
+        }
+    }
+
+    /**
+     * Executes the Registration API
+     */
+    fun register(username: String, email: String, password: String) {
+        if (username.isBlank() || email.isBlank() || password.isBlank()) {
+            registerUiState = RegisterUiState.Error("All fields are required")
+            return
+        }
+
+        viewModelScope.launch {
+            registerUiState = RegisterUiState.Loading
+            try {
+                val response = client.post("http://10.0.2.2:4200/api/Authenticate/register") {
+                    contentType(ContentType.Application.Json)
+                    setBody(RegisterRequest(username, email, password))
+                }
+
+                when (response.status) {
+                    HttpStatusCode.OK, HttpStatusCode.Created -> {
+                        registerUiState = RegisterUiState.Success("Registration successful!")
+                    }
+                    HttpStatusCode.Conflict -> {
+                        registerUiState = RegisterUiState.Error("User already exists")
+                    }
+                    else -> {
+                        val errorBody = response.body<RegisterResponse>()
+                        registerUiState = RegisterUiState.Error(errorBody.message ?: "Registration failed")
+                    }
+                }
+            } catch (e: Exception) {
+                registerUiState = RegisterUiState.Error(e.message ?: "An unexpected error occurred")
             }
         }
     }
