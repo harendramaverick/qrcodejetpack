@@ -2,6 +2,7 @@ package com.microsoft.qrcode
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,18 +20,87 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.microsoft.qrcode.ui.theme.QrcodeTheme
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(navController: NavController, viewModel: AuthViewModel = viewModel()) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var showPopup by remember { mutableStateOf(false) }
+
+    val loginUiState = viewModel.loginUiState
+
+    // Handle API responses
+    LaunchedEffect(loginUiState) {
+        if (loginUiState is LoginUiState.Success) {
+            showPopup = true
+        }
+    }
+
+    if (showPopup) {
+        Dialog(
+            onDismissRequest = { showPopup = false }
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                shape = RoundedCornerShape(20.dp),
+                elevation = CardDefaults.cardElevation(12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = if ((loginUiState as? LoginUiState.Success)?.data?.token != null) "Success! 👋" else "Login Result",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = if ((loginUiState as? LoginUiState.Success)?.data?.token != null) "Login Successful" else "Something went wrong",
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        color = Color.Gray
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Button(
+                        onClick = {
+                            showPopup = false
+                            navController.navigate("dashboard") {
+                                popUpTo("login") { inclusive = true }
+                            }
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF6200EE)
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Continue to Dashboard", color = Color.White)
+                    }
+                }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -41,6 +111,8 @@ fun LoginScreen(navController: NavController) {
     ) {
 
         Spacer(modifier = Modifier.height(32.dp))
+
+        // ... (rest of the Column content)
 
         // App Icon
         Box(
@@ -133,10 +205,13 @@ fun LoginScreen(navController: NavController) {
         // Login Button
         Button(
             onClick = {
-                navController.navigate("dashboard") {
-                    popUpTo("login") { inclusive = true }
+                if (email.isBlank() || password.isBlank()) {
+                    // You could also set a local error state here
+                } else {
+                    viewModel.login(email, password)
                 }
             },
+            enabled = loginUiState !is LoginUiState.Loading && email.isNotBlank() && password.isNotBlank(),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
@@ -146,16 +221,25 @@ fun LoginScreen(navController: NavController) {
                 containerColor = Color(0xFF1E6CF1)
             )
         ) {
-            Text(
-                text = "Login",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Medium
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = "Login"
-            )
+            if (loginUiState is LoginUiState.Loading) {
+                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+            } else {
+                Text(
+                    text = "Login",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = "Login"
+                )
+            }
+        }
+
+        if (loginUiState is LoginUiState.Error) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = loginUiState.message, color = Color.Red, fontSize = 14.sp)
         }
 
         Spacer(modifier = Modifier.height(32.dp))
