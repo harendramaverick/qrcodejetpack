@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.microsoft.qrcode.compose.BottomNavigationBar
@@ -42,8 +43,18 @@ import com.microsoft.qrcode.ui.theme.QrcodeTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: AuthViewModel = viewModel()
 ) {
+    val userDetailsUiState = viewModel.userDetailsUiState
+    val loggedInUsername = viewModel.loggedInUsername
+
+    LaunchedEffect(Unit) {
+        loggedInUsername?.let {
+            viewModel.fetchUserDetails(it)
+        }
+    }
+
     Scaffold(
         topBar = {
         },
@@ -58,7 +69,12 @@ fun ProfileScreen(
                 .background(Color.White)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp),
-            navController = navController
+            navController = navController,
+            userDetailsUiState = userDetailsUiState,
+            onLogout = {
+                viewModel.logout()
+                navController.navigate("login") { popUpTo("login") { inclusive = true } }
+            }
         )
     }
 }
@@ -67,7 +83,9 @@ fun ProfileScreen(
 @Composable
 fun ProfileScreenSub(
     modifier: Modifier,
-    navController: NavController
+    navController: NavController,
+    userDetailsUiState: UserDetailsUiState,
+    onLogout: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -135,14 +153,42 @@ fun ProfileScreenSub(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(
-            text = "Alex Johnson",
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
+        when (userDetailsUiState) {
+            is UserDetailsUiState.Loading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    color = Color(0xFF2979FF)
+                )
+            }
+            is UserDetailsUiState.Success -> {
+                val user = userDetailsUiState.data
+                Text(
+                    text = user.userName ?: "User",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
 
-        Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = user.email ?: "",
+                    fontSize = 14.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+            is UserDetailsUiState.Error -> {
+                Text(
+                    text = "Error loading profile",
+                    color = Color.Red,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+            }
+            else -> {}
+        }
 
         Box(
             modifier = Modifier
@@ -171,7 +217,7 @@ fun ProfileScreenSub(
 
         // Logout
         OutlinedButton(
-            onClick = { navController.navigate("login") { popUpTo("login") { inclusive = true } }} ,
+            onClick = onLogout ,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp),

@@ -34,6 +34,7 @@ data class LoginResponse(
 data class RegisterRequest(
     val username: String,
     val email: String,
+    val phoneNo: String,
     val password: String
 )
 
@@ -41,6 +42,13 @@ data class RegisterRequest(
 data class RegisterResponse(
     val status: String? = null,
     val message: String? = null
+)
+
+@Serializable
+data class UserDetails(
+    val userName: String? = null,
+    val email: String? = null,
+    val phoneNo: String? = null
 )
 
 // --- UI State ---
@@ -57,6 +65,13 @@ sealed class RegisterUiState {
     object Loading : RegisterUiState()
     data class Success(val message: String) : RegisterUiState()
     data class Error(val message: String) : RegisterUiState()
+}
+
+sealed class UserDetailsUiState {
+    object Idle : UserDetailsUiState()
+    object Loading : UserDetailsUiState()
+    data class Success(val data: UserDetails) : UserDetailsUiState()
+    data class Error(val message: String) : UserDetailsUiState()
 }
 
 // --- ViewModel ---
@@ -77,6 +92,12 @@ class AuthViewModel : ViewModel() {
         private set
 
     var registerUiState by mutableStateOf<RegisterUiState>(RegisterUiState.Idle)
+        private set
+
+    var userDetailsUiState by mutableStateOf<UserDetailsUiState>(UserDetailsUiState.Idle)
+        private set
+
+    var loggedInUsername by mutableStateOf<String?>(null)
         private set
 
     /**
@@ -101,6 +122,7 @@ class AuthViewModel : ViewModel() {
                     HttpStatusCode.OK -> {
                         val loginData: LoginResponse = response.body()
                         if (loginData.token != null) {
+                            loggedInUsername = username
                             loginUiState = LoginUiState.Success(loginData)
                         } else {
                             loginUiState = LoginUiState.Error("Login failed: No token received")
@@ -122,8 +144,8 @@ class AuthViewModel : ViewModel() {
     /**
      * Executes the Registration API
      */
-    fun register(username: String, email: String, password: String) {
-        if (username.isBlank() || email.isBlank() || password.isBlank()) {
+    fun register(username: String, email: String, password: String, phone: String) {
+        if (username.isBlank() || email.isBlank() || password.isBlank() || phone.isBlank()) {
             registerUiState = RegisterUiState.Error("All fields are required")
             return
         }
@@ -133,7 +155,7 @@ class AuthViewModel : ViewModel() {
             try {
                 val response = client.post("http://10.0.2.2:4200/api/Authenticate/register") {
                     contentType(ContentType.Application.Json)
-                    setBody(RegisterRequest(username, email, password))
+                    setBody(RegisterRequest(username, email, phone, password))
                 }
 
                 when (response.status) {
@@ -154,8 +176,39 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Fetches User Details
+     */
+    fun fetchUserDetails(username: String) {
+        viewModelScope.launch {
+            userDetailsUiState = UserDetailsUiState.Loading
+            try {
+                val response = client.post("http://10.0.2.2:4200/api/Authenticate/userdetails") {
+                    parameter("Username", username)
+                    contentType(ContentType.Application.Json)
+                    setBody("") // Empty body as per curl -d ''
+                }
+
+                if (response.status == HttpStatusCode.OK) {
+                    val details: UserDetails = response.body()
+                    userDetailsUiState = UserDetailsUiState.Success(details)
+                } else {
+                    userDetailsUiState = UserDetailsUiState.Error("Failed to fetch details: ${response.status}")
+                }
+            } catch (e: Exception) {
+                userDetailsUiState = UserDetailsUiState.Error(e.message ?: "An unexpected error occurred")
+            }
+        }
+    }
+
     override fun onCleared() {
         super.onCleared()
         client.close() // Close the client when ViewModel is destroyed
+    }
+
+    fun logout() {
+        loggedInUsername = null
+        loginUiState = LoginUiState.Idle
+        userDetailsUiState = UserDetailsUiState.Idle
     }
 }

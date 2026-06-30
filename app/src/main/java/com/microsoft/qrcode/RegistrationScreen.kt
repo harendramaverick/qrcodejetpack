@@ -191,7 +191,8 @@ fun RegistrationScreen(navController: NavController, viewModel: AuthViewModel = 
 
             Button(
                 onClick = {
-                    viewModel.register(fullName, email, password)
+                    viewModel.register(fullName, email, password, phone)
+
                 },
                 enabled = registerUiState !is RegisterUiState.Loading,
                 modifier = Modifier
